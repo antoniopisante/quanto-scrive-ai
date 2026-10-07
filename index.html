@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Quanto può scrivere l'AI</title>
+<meta name="description" content="Un framework di Yellow Tech per decidere, testo per testo, quanto può scrivere l'AI al posto tuo: Velocità − Qualità − Pensiero.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Quanto può scrivere l'AI">
+<meta property="og:description" content="Un framework di Yellow Tech per decidere, testo per testo, quanto può scrivere l'AI al posto tuo: Velocità − Qualità − Pensiero.">
+<meta property="og:url" content="https://antoniopisante.github.io/quanto-scrive-ai/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F2C200'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='15' text-anchor='middle' fill='%231A1B18'%3EAI%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una sola schermata. A sinistra cosa scrive l'AI e le tre domande; a destra il risultato e la scala degli otto gradini. Le misure sono in rem e la radice scala con l'altezza dello schermo, così tutto sta in una pagina. */
+:root{
+  --bg:#F3F3EE; --surface:#FFFFFF; --fg:#1A1B18; --muted:#5B5C55; --line:#D8D9CF;
+  --accent:#F2C200; --focus:#1F5FD0;
+  --r-bg:#25314A; --r-ink:#F2F4F9;
+  --c-bg:#F2C200; --c-ink:#1A1B18;
+  --s-bg:#D7E5DA; --s-ink:#1A2A1F;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Sans 3","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121310; --surface:#1B1C18; --fg:#ECECE4; --muted:#A3A499; --line:#35362F;
+    --accent:#F2C200; --focus:#86B4FF;
+    --r-bg:#AABBDC; --r-ink:#141A27;
+    --c-bg:#E6B800; --c-ink:#121310;
+    --s-bg:#2B4233; --s-ink:#E2EFE5;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121310; --surface:#1B1C18; --fg:#ECECE4; --muted:#A3A499; --line:#35362F;
+  --accent:#F2C200; --focus:#86B4FF;
+  --r-bg:#AABBDC; --r-ink:#141A27;
+  --c-bg:#E6B800; --c-ink:#121310;
+  --s-bg:#2B4233; --s-ink:#E2EFE5;
+  color-scheme:dark;
+}
+html{font-size:clamp(12px,1.72vh,15.5px)}
+@media (max-width:860px){html{font-size:15px}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:1rem/1.4 var(--body);}
+.wrap{max-width:76rem;margin:0 auto;padding-inline:clamp(16px,2.5vw,28px);padding-block:1rem;display:grid;gap:.8rem}
+h1{font-family:var(--display);font-weight:800;font-size:2.1rem;line-height:1.05;letter-spacing:-.01em;margin:0;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.lvl-R{background:var(--r-bg);color:var(--r-ink)}
+.lvl-C{background:var(--c-bg);color:var(--c-ink)}
+.lvl-S{background:var(--s-bg);color:var(--s-ink)}
+
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.3rem 1.4rem}
+.titles{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .9rem}
+.credit{font:600 .78rem/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.formula{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .6rem;font-family:var(--display);font-weight:800;font-size:1.4rem}
+.formula .op{color:var(--muted);font-weight:600}
+.formula .term{box-shadow:inset 0 -.3em 0 var(--accent);padding-inline:.05em}
+.def{font-size:.98rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:.7rem}
+.def strong{color:var(--fg)}
+
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.3rem;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.questions{display:grid;gap:.9rem;min-width:0}
+.block{display:grid;gap:.4rem;min-width:0}
+.q-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem .6rem}
+.q-head .name{font-family:var(--display);font-weight:800;font-size:1.15rem}
+.q-head .q{font-size:.95rem;color:var(--fg)}
+.tiles{display:grid;gap:.4rem}
+.tiles.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tiles.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:560px){.tiles.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{position:relative;display:grid;gap:.1rem;align-content:start;padding:.45rem .65rem;border:1px solid var(--line);border-radius:.5rem;background:var(--surface);cursor:pointer;min-width:0}
+.tile input,.seg input{position:absolute;opacity:0;pointer-events:none}
+.tile .tn{display:flex;gap:.4rem;align-items:baseline}
+.tile .tn b{font-family:var(--mono);font-size:1.05rem}
+.tile .tn strong{font-size:.95rem}
+.tile .td{font-size:.84rem;color:var(--muted);line-height:1.3}
+.tile:has(input:checked){border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
+.tile:has(input:focus-visible),.seg label:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.tile:has(input:disabled){opacity:.45;cursor:not-allowed}
+.hint{font-size:.84rem;color:var(--muted);line-height:1.35}
+.hint strong{color:var(--fg);font-weight:600}
+.urgent{display:flex;align-items:center;gap:.5rem;justify-self:start;padding:.25rem .65rem;border:1px dashed var(--line);border-radius:.5rem;background:var(--surface);font-size:.9rem;font-weight:600;cursor:pointer}
+.urgent input{accent-color:var(--fg);margin:0}
+.urgent:has(input:checked){border-style:solid;border-color:var(--fg)}
+.urgent:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.urgentline{font-size:.95rem;font-weight:600}
+.seg-row{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .8rem}
+.seg-row .name{font-family:var(--display);font-weight:800;font-size:1.15rem}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:3px;gap:3px}
+.seg label{position:relative;padding:.3rem .9rem;border-radius:999px;cursor:pointer;font-weight:600;font-size:.95rem}
+.seg label:has(input:checked){background:var(--fg);color:var(--bg)}
+
+.side{display:grid;gap:.6rem;min-width:0}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:.75rem;padding:.75rem .9rem;display:grid;gap:.5rem}
+.calcline{font-family:var(--mono);font-size:.95rem;display:flex;flex-wrap:wrap;gap:.3rem;align-items:baseline;font-variant-numeric:tabular-nums}
+.calcline .lab{font-family:var(--body);font-size:.82rem;color:var(--muted)}
+.calcline .tot{font-size:1.7rem;font-weight:700;margin-left:.15rem}
+.verdict{border-radius:.5rem;padding:.55rem .75rem;display:grid;gap:.2rem}
+.verdict .vtop{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem}
+.verdict .vname{font-family:var(--display);font-weight:800;font-size:1.4rem}
+.verdict .vstep{font-family:var(--mono);font-size:.85rem}
+.verdict p{font-size:.95rem}
+.disclose{font-size:.9rem;line-height:1.35;padding:.45rem .65rem;border-left:3px solid var(--accent);background:var(--bg);color:var(--fg);border-radius:.35rem}
+
+.ladder{display:grid;gap:.4rem}
+.band-block{border-radius:.65rem;padding:.4rem;display:grid;gap:.05rem}
+.band-block .bh{display:flex;justify-content:space-between;gap:.5rem;font-weight:700;font-size:.88rem;padding:.05rem .4rem .2rem}
+.band-block .bh span:last-child{font-family:var(--mono);font-weight:500;font-size:.8rem}
+.step{display:grid;grid-template-columns:2.3em minmax(0,1fr);gap:.4rem;padding:.2rem .4rem;border-radius:.4rem;font-size:.88rem;line-height:1.28}
+.step .sv{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums}
+.step.cur{background:var(--surface);color:var(--fg);box-shadow:0 0 0 2px var(--fg)}
+.autonote{font-size:.82rem;padding:.2rem .4rem .1rem;opacity:.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="titles">
+      <h1>Quanto può scrivere l'AI</h1>
+      <span class="credit">Un framework di Yellow Tech</span>
+    </div>
+    <div class="formula" aria-label="Velocità meno qualità meno pensiero">
+      <span class="term">Velocità</span><span class="op">−</span><span class="term">Qualità</span><span class="op">−</span><span class="term">Pensiero</span>
+    </div>
+  </header>
+  <p class="def">L'AI si usa sempre per leggere, cercare, analizzare, fare brainstorming e ricevere critiche. Questo calcolo serve quando deve <strong>scrivere al posto tuo</strong> un testo o un codice che altri leggeranno o useranno: rispondi alle tre domande e il risultato indica quanto può scrivere.</p>
+
+  <div class="main">
+    <div class="questions">
+      <div class="seg-row">
+        <span class="name">Cosa deve scrivere l'AI?</span>
+        <div class="seg" role="radiogroup" aria-label="Cosa deve scrivere l'AI">
+          <label><input type="radio" name="kind" id="kind-testo" value="testo">Testo o presentazione</label>
+          <label><input type="radio" name="kind" id="kind-codice" value="codice">Codice</label>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="q-head"><span class="name">Velocità</span><span class="q">Senza AI, quanto tempo ti servirebbe?</span></div>
+        <div class="tiles four" id="tiles-v" role="radiogroup" aria-label="Velocità"></div>
+        <span class="hint">Conta il tempo che ci metteresti tu, in minuti e ore: dieci minuti restano pochi anche se l'AI ne impiega uno.</span>
+        <span class="hint"><strong>Un testo alla volta:</strong> cento risposte diverse sono cento calcoli. Se invece partono tutte da una base comune, la base conta come un testo letto da molti, e l'adattamento si calcola su tutte insieme.</span>
+        <label class="urgent" id="urgent-row"><input type="checkbox" id="urgent">Lo consegno in tempo solo se lo scrive l'AI</label>
+      </div>
+
+      <div class="block">
+        <div class="q-head"><span class="name">Qualità</span><span class="q" id="question-q">Se lo scrive l'AI invece di te, quanto perde chi lo riceve?</span></div>
+        <div class="tiles grid2" id="tiles-q" role="radiogroup" aria-label="Qualità"></div>
+        <span class="hint" id="hint-q"></span>
+      </div>
+
+      <div class="block">
+        <div class="q-head"><span class="name">Pensiero</span><span class="q">Dovrai presentarlo o difenderlo di persona?</span></div>
+        <div class="tiles grid2" id="tiles-p" role="radiogroup" aria-label="Pensiero"></div>
+        <span class="hint" id="hint-p" hidden>Per il codice vale 0: quanto devi capirlo lo dicono già i gradini.</span>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="result" aria-live="polite">
+        <p class="urgentline" id="urgent-line" hidden>Eccezione: lo consegni in tempo solo se lo scrive l'AI.</p>
+        <div class="calcline" id="calcline">
+          <span class="lab">Velocità</span><span id="rv">0</span><span>−</span>
+          <span class="lab">Qualità</span><span id="rq">0</span><span>−</span>
+          <span class="lab">Pensiero</span><span id="rp">0</span><span>=</span>
+          <span class="tot" id="rs">0</span>
+        </div>
+        <div class="verdict" id="verdict">
+          <div class="vtop"><span class="vname" id="vname"></span><span class="vstep" id="vstep"></span></div>
+          <p id="vdesc"></p>
+        </div>
+        <p class="disclose" id="disclose" hidden></p>
+      </div>
+      <div class="ladder" id="ladder" aria-label="Gli otto gradini"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var V_OPTS = [
+  {n:0, name:"Minuti", d:"Te la cavi in pochi minuti."},
+  {n:1, name:"Meno di un'ora", d:"Ci vuole un po', ma meno di un'ora."},
+  {n:2, name:"Ore o giorni", d:"Ci vogliono ore di lavoro, o giorni."},
+  {n:3, name:"Non fattibile", d:"Non hai quel tempo, o a mano non lo faresti mai."}
+];
+var Q_OPTS = {
+  testo: [
+    {n:0, name:"Niente", d:"Il contenuto c'è già e va solo messo in forma, oppure la differenza non conta per nessuno."},
+    {n:1, name:"Poco", d:"Il testo viene più generico, ma serve lo stesso allo scopo."},
+    {n:2, name:"Abbastanza", d:"Manca il tuo giudizio, e chi lo riceve se ne accorge."},
+    {n:3, name:"Molto", d:"Senza il tuo giudizio il testo fallisce, con chi conta molto o davanti a molte persone."}
+  ],
+  codice: [
+    {n:0, name:"Niente", d:"Un errore non costa niente: se si rompe, nessuno ci rimette."},
+    {n:1, name:"Poco", d:"Un errore costa poco e si corregge in fretta."},
+    {n:2, name:"Abbastanza", d:"Un errore pesa su chi lo usa, colleghi o clienti."},
+    {n:3, name:"Molto", d:"Un errore costa caro: dati, soldi, sicurezza o un cliente importante."}
+  ]
+};
+var Q_QUESTION = {
+  testo: "Se lo scrive l'AI invece di te, quanto ci rimetti?",
+  codice: "Se lo scrive l'AI e c'è un errore che non hai visto, quanto costa a chi lo usa?"
+};
+var Q_HINT = {
+  testo: "Confronta con la tua versione migliore, come se avessi tutto il tempo che serve: al tempo pensa la Velocità.",
+  codice: "Pensa a chi lo userà e a cosa succede se smette di funzionare."
+};
+var P_OPTS = [
+  {n:0, name:"No", d:"Viene letto e basta, o lo presenta qualcun altro."},
+  {n:1, name:"Sì", d:"Lo presenterai o ne risponderai a voce: scriverlo ti serve per costruire il ragionamento."}
+];
+var BANDS = {
+  S: {name:"Scrive l'AI", range:"da +1 a +3"},
+  C: {name:"Scrivete insieme", range:"0 e −1"},
+  R: {name:"Scrivi tu", range:"da −2 a −4"}
+};
+var STEPS = {
+  "3":  {testo:"L'AI scrive tutto. Prima di consegnare, dai una lettura veloce.",
+         codice:"L'AI scrive tutto il codice. Puoi anche non conoscerlo, ma dichiaralo."},
+  "2":  {testo:"L'AI scrive tutto. Tu verifichi fatti, nomi e numeri.",
+         codice:"L'AI scrive tutto il codice. Tu sai come funziona e lo verifichi con i test."},
+  "1":  {testo:"L'AI scrive la prima versione. Tu la rileggi per intero e correggi contenuto e tono.",
+         codice:"L'AI scrive tutto il codice. Tu lo capisci riga per riga e sai spiegarlo."},
+  "0":  {testo:"Struttura e messaggi li decidi tu. L'AI scrive bozze o parti, e tu rivedi ogni frase.",
+         codice:"L'architettura la decidi tu. L'AI scrive il codice al suo interno, e tu rivedi ogni riga con i test e la revisione di un collega."},
+  "-1": {testo:"L'AI ti prepara una base. Il testo finale lo scrivi tu, con parole tue.",
+         codice:"Le parti critiche le scrivi tu. L'AI scrive il resto, e tu rivedi ogni riga."},
+  "-2": {testo:"L'AI legge e critica: cosa non regge, cosa manca, dove sbagli. Le modifiche le fai tu.",
+         codice:"L'AI suggerisce, cerca bug e rivede il tuo codice."},
+  "-3": {testo:"L'AI segnala solo errori: fatti, numeri, refusi. Le correzioni le fai tu.",
+         codice:"L'AI rivede il tuo codice e segnala i problemi."},
+  "-4": {testo:"L'AI corregge solo refusi, accenti e grammatica.",
+         codice:"L'AI controlla solo errori evidenti e stile."}
+};
+var AUTONOTE = "Se l'AI scrive in automatico e su larga scala, controlli a intervalli regolari un campione di quello che produce.";
+var URGENT_TEXT = "Meglio di niente. Verifica fatti, nomi e numeri, poi recupera con una versione tua.";
+var DISCLOSE = {
+  testo: "Se chi lo legge penserà che l'hai scritto tu, devi poter rispondere di ogni frase come se fosse tua. Se non puoi, dillo.",
+  codice: "Se chi lo usa o lo rivede penserà che l'hai scritto tu, devi poter rispondere di ogni riga. Se non puoi, dillo."
+};
+
+function band(s){ return s >= 1 ? "S" : (s >= -1 ? "C" : "R"); }
+function fmt(n){ return n > 0 ? "+" + n : (n < 0 ? "−" + Math.abs(n) : "0"); }
+
+var state = {kind:"testo", v:2, q:3, p:1, pText:1, urgent:false};
+
+function tileHTML(key, o){
+  var id = key + "-" + o.n;
+  return '<label class="tile" for="' + id + '"><input type="radio" name="' + key + '" id="' + id + '" value="' + o.n + '">' +
+    '<span class="tn"><b>' + o.n + '</b><strong>' + o.name + '</strong></span><span class="td">' + o.d + '</span></label>';
+}
+function fillTiles(boxId, key, opts){
+  document.getElementById(boxId).innerHTML = opts.map(function(o){ return tileHTML(key, o); }).join("");
+}
+function listen(boxId, key){
+  document.getElementById(boxId).addEventListener("change", function(e){
+    if (e.target.name !== key) return;
+    state[key] = Number(e.target.value);
+    if (key === "p" && state.kind === "testo") state.pText = state.p;
+    render();
+  });
+}
+
+function buildLadder(){
+  var html = "";
+  ["S","C","R"].forEach(function(B){
+    var scores = B === "S" ? [3,2,1] : (B === "C" ? [0,-1] : [-2,-3,-4]);
+    html += '<div class="band-block lvl-' + B + '"><div class="bh"><span>' + BANDS[B].name + '</span><span>' + BANDS[B].range + '</span></div>';
+    scores.forEach(function(s){
+      html += '<div class="step" data-s="' + s + '"><span class="sv">' + fmt(s) + '</span><span class="st"></span></div>';
+    });
+    if (B === "S") html += '<div class="autonote">' + AUTONOTE + '</div>';
+    html += '</div>';
+  });
+  document.getElementById("ladder").innerHTML = html;
+}
+
+function setKind(kind){
+  state.kind = kind;
+  fillTiles("tiles-q", "q", Q_OPTS[kind]);
+  document.getElementById("question-q").textContent = Q_QUESTION[kind];
+  document.getElementById("hint-q").textContent = Q_HINT[kind];
+  var isCode = kind === "codice";
+  state.p = isCode ? 0 : state.pText;
+  document.getElementById("p-1").disabled = isCode;
+  document.getElementById("hint-p").hidden = !isCode;
+  document.getElementById("urgent-row").hidden = isCode;
+  if (isCode){ state.urgent = false; document.getElementById("urgent").checked = false; }
+  render();
+}
+
+function render(){
+  var urgent = state.urgent && state.kind === "testo";
+  var s = state.v - state.q - state.p;
+  var shown = urgent ? 2 : s, B = band(shown);
+  ["v","q","p"].forEach(function(k){ var el = document.getElementById(k + "-" + state[k]); if (el) el.checked = true; });
+  document.getElementById("kind-" + state.kind).checked = true;
+  document.getElementById("rv").textContent = state.v;
+  document.getElementById("rq").textContent = state.q;
+  document.getElementById("rp").textContent = state.p;
+  document.getElementById("rs").textContent = fmt(s);
+  document.getElementById("calcline").hidden = urgent;
+  document.getElementById("urgent-line").hidden = !urgent;
+  document.getElementById("verdict").className = "verdict lvl-" + B;
+  document.getElementById("vname").textContent = BANDS[B].name;
+  document.getElementById("vstep").textContent = urgent ? "Eccezione" : "Gradino " + fmt(s);
+  document.getElementById("vdesc").textContent = urgent ? URGENT_TEXT : STEPS[String(s)][state.kind];
+  var dis = document.getElementById("disclose");
+  dis.hidden = shown < 2;
+  dis.textContent = DISCLOSE[state.kind];
+  document.querySelectorAll(".step").forEach(function(el){
+    var k = el.getAttribute("data-s");
+    el.querySelector(".st").textContent = STEPS[k][state.kind];
+    el.classList.toggle("cur", Number(k) === shown);
+  });
+}
+
+fillTiles("tiles-v", "v", V_OPTS);
+fillTiles("tiles-p", "p", P_OPTS);
+listen("tiles-v", "v");
+listen("tiles-q", "q");
+listen("tiles-p", "p");
+document.querySelectorAll('input[name="kind"]').forEach(function(r){
+  r.addEventListener("change", function(){ setKind(r.value); });
+});
+document.getElementById("urgent").addEventListener("change", function(e){
+  state.urgent = e.target.checked;
+  render();
+});
+buildLadder();
+setKind("testo");
+</script>
+</body>
+</html>
